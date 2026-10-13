@@ -6,31 +6,31 @@ import { collection, onSnapshot, doc, setDoc } from 'firebase/firestore';
 const BANCO_DE_PREGUNTAS = [
   {
     id: 1,
-    pregunta: "¿Qué significa HTML?",
+    pregunta: "¿Qué tipo de programación usa Scratch?",
     opciones: [
-      "HyperText Markup Language",
-      "High Tech Modern Language",
-      "Home Tool Management Line"
-    ],
-    correcta: 0 // La primera opción es la correcta (índice 0)
-  },
-  {
-    id: 2,
-    pregunta: "¿Cuál de estos es un protocolo de red?",
-    opciones: [
-      "CSS",
-      "TCP/IP",
+      "No usa programación",
+      "Programación por bloques",
       "Python"
     ],
     correcta: 1 // La segunda opción es la correcta (índice 1)
   },
   {
-    id: 3,
-    pregunta: "¿Qué comando en la terminal se usa para clonar un repositorio de GitHub?",
+    id: 2,
+    pregunta: "¿Qué bloque hace que el personaje camine?",
     opciones: [
-      "git push",
-      "git pull",
-      "git clone"
+      "Movimiento",
+      "Sensor",
+      "Eventos"
+    ],
+    correcta: 0 // La primera opción es la correcta (índice 0)
+  },
+  {
+    id: 3,
+    pregunta: "Si yo quiero agregar mi nombre en mi videojuego sin que cambie de posición, ¿Dónde debería hacerlo?",
+    opciones: [
+      "Perfil",
+      "Personaje",
+      "Fondo"
     ],
     correcta: 2 // La tercera opción es la correcta (índice 2)
   }

@@ -1,38 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, onSnapshot, doc, setDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, setDoc, updateDoc } from 'firebase/firestore';
 
-// 📝 AQUÍ ESCRIBO Preguntas
 const BANCO_DE_PREGUNTAS = [
   {
     id: 1,
-    pregunta: "¿Qué tipo de programación usa Scratch?",
+    pregunta: "¿Qué significa HTML?",
     opciones: [
-      "No usa programación",
-      "Programación por bloques",
-      "Python"
+      "HyperText Markup Language",
+      "High Tech Modern Language",
+      "Home Tool Management Line"
     ],
-    correcta: 1 // La segunda opción es la correcta (índice 1)
+    correcta: 0
   },
   {
     id: 2,
-    pregunta: "¿Qué bloque hace que el personaje camine?",
+    pregunta: "¿Cuál de estos es un protocolo de red?",
     opciones: [
-      "Movimiento",
-      "Sensor",
-      "Eventos"
+      "CSS",
+      "TCP/IP",
+      "Python"
     ],
-    correcta: 0 // La primera opción es la correcta (índice 0)
+    correcta: 1
   },
   {
     id: 3,
-    pregunta: "Si yo quiero agregar mi nombre en mi videojuego sin que cambie de posición, ¿Dónde debería hacerlo?",
+    pregunta: "¿Qué comando en la terminal se usa para clonar un repositorio de GitHub?",
     opciones: [
-      "Perfil",
-      "Personaje",
-      "Fondo"
+      "git push",
+      "git pull",
+      "git clone"
     ],
-    correcta: 2 // La tercera opción es la correcta (índice 2)
+    correcta: 2
   }
 ];
 
@@ -41,7 +40,6 @@ export default function Host() {
   const [preguntaAbierta, setPreguntaAbierta] = useState('');
   const [preguntaActualId, setPreguntaActualId] = useState(null);
 
-  // Respuestas de las alumnas en tiempo real
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'players'), (snapshot) => {
       const listaJugadores = snapshot.docs.map(doc => ({
@@ -54,7 +52,34 @@ export default function Host() {
     return () => unsubscribe();
   }, []);
 
-  // Lanzar Pregunta Abierta
+  // 🔄 FUNCIÓN PARA REINICIAR EL JUEGO A CERO
+  const reiniciarJuego = async () => {
+    const confirmar = window.confirm("¿Segura que deseas reiniciar todos los puntos y las respuestas a cero?");
+    if (!confirmar) return;
+
+    try {
+      // 1. Regresar la fase del juego a 'espera'
+      await setDoc(doc(db, 'game_state', 'actual'), {
+        fase: 'espera'
+      });
+
+      // 2. Reiniciar puntos y respuestas abiertas de cada alumna en Firestore
+      const promesas = players.map(p => 
+        updateDoc(doc(db, 'players', p.id), {
+          puntuacion_total: 0,
+          respuesta_abierta: ''
+        })
+      );
+
+      await Promise.all(promesas);
+      setPreguntaActualId(null);
+      alert('¡El juego se ha reiniciado! Todos los puntos están en 0.');
+    } catch (error) {
+      console.error('Error al reiniciar el juego:', error);
+      alert('Hubo un error al reiniciar.');
+    }
+  };
+
   const lanzarPreguntaAbierta = async () => {
     if (!preguntaAbierta.trim()) return;
     await setDoc(doc(db, 'game_state', 'actual'), {
@@ -64,7 +89,6 @@ export default function Host() {
     alert('¡Pregunta abierta enviada!');
   };
 
-  // Lanzar la pregunta seleccionada del banco
   const lanzarPregunta = async (q) => {
     setPreguntaActualId(q.id);
 
@@ -77,19 +101,23 @@ export default function Host() {
     });
   };
 
-  // Mostrar Podio / Resultados finales
   const mostrarPodio = async () => {
     await setDoc(doc(db, 'game_state', 'actual'), {
       fase: 'resultados'
     });
   };
 
-  // Ordenar alumnas por puntuación
   const jugadorasOrdenadas = [...players].sort((a, b) => (b.puntuacion_total || 0) - (a.puntuacion_total || 0));
 
   return (
     <div style={styles.container}>
-      <h1>Panel de Host (Profesora) 👑</h1>
+      <div style={styles.topBar}>
+        <h1>Panel de Host (Profesora) 👑</h1>
+        <button onClick={reiniciarJuego} style={styles.resetBtn}>
+          🔄 Reiniciar Puntos a 0
+        </button>
+      </div>
+
       <p style={styles.counter}>Alumnas conectadas: <strong>{players.length}</strong></p>
 
       {/* FASE 1: PREGUNTA ABIERTA */}
@@ -168,7 +196,9 @@ export default function Host() {
 
 const styles = {
   container: { padding: '2rem', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' },
-  counter: { fontSize: '1.2rem', color: '#4b5563' },
+  topBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' },
+  resetBtn: { backgroundColor: '#dc2626', color: '#fff', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' },
+  counter: { fontSize: '1.2rem', color: '#4b5563', marginTop: '0.5rem' },
   section: { backgroundColor: '#f3f4f6', padding: '1.5rem', borderRadius: '8px', marginBottom: '1.5rem' },
   input: { padding: '0.75rem', borderRadius: '4px', border: '1px solid #ccc', flex: 1 },
   button: { padding: '0.75rem 1.2rem', color: '#fff', backgroundColor: '#9333ea', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' },

@@ -51,7 +51,8 @@ const SESIONES = {
     opciones: [
       "Variable",
       "Evento",
-      "Bucle"],
+      "Bucle"
+    ],
       correcta: 2
     }
   ],

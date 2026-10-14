@@ -50,10 +50,10 @@ const SESIONES = {
     pregunta: "¿Qué permite repetir una instrucción varias veces?",
     opciones: [
       "Variable",
-      "Evento",
-      "Bucle"
+      "Bucle",
+      "Evento"
     ],
-      correcta: 2
+      correcta: 1
     }
   ],
   "Sesión 4": [

@@ -52,20 +52,26 @@ const SESIONES = {
       "Variable",
       "Evento",
       "Bucle"],
-      correcta: 1
+      correcta: 2
     }
   ],
   "Sesión 4": [
     {
       id: "s4_1",
-      pregunta: "¿Qué es React?",
-      opciones: ["Una base de datos", "Un lenguaje de programación", "Una librería de JavaScript para interfaces"],
+      pregunta: "¿Qué es un evento en Scratch?",
+      opciones: ["Un operador matemático.", "Un bloque que repite instrucciones indefinidamente.", "Algo que desencadena una acción en el programa."],
       correcta: 2
     },
     {
       id: "s4_2",
-      pregunta: "¿Qué Hook de React usamos para manejar el estado?",
-      opciones: ["useState", "useEffect", "useContext"],
+      pregunta: "¿Cuál de los siguientes es un ejemplo de un evento en Scratch?",
+      opciones: ["Cuando presionamos una tecla.", "Cuando se suman dos números.", "Cuando se crea una variable."],
+      correcta: 0
+    },
+    {
+      id: "s4_3",
+      pregunta: "¿Cuál de los siguientes es un ejemplo de una condicional?",
+      opciones: ["Si el personaje toca el borde, entonces rebota.", "Repetir un bloque 10 veces.", "Mostrar una variable en pantalla."],
       correcta: 0
     }
   ],

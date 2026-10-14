@@ -2,10 +2,32 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, onSnapshot, doc, setDoc, updateDoc } from 'firebase/firestore';
 
-const BANCO_DE_PREGUNTAS = [
-  {
-    id: 1,
-    pregunta: "¿Qué es la secuenciación?",
+// 📝 BANCO DE PREGUNTAS ORGANIZADO POR SESIONES
+const SESIONES = {
+  "Sesión 2": [
+    {
+      id: "s2_1",
+      pregunta: "¿Qué tipo de programación usa Scratch?",
+      opciones: ["No usa programación", "Programación por bloques", "Python"],
+      correcta: 1
+    },
+    {
+      id: "s2_2",
+      pregunta: "Si quiero que mi personaje camine, ¿Qué tipo de bloque puedo usar?",
+      opciones: ["Movimiento", "Sensor", "Apariencia"],
+      correcta: 0
+    },
+    {
+      id: "s2_3",
+      pregunta: "Si quiero ponerle mi nombre al videojuego sin que cambie de posición, ¿Dónde debería hacerlo?",
+      opciones: ["Personaje", "Perfil", "Escenario"],
+      correcta: 2
+    }
+  ],
+  "Sesión 3": [
+    {
+      id: "s3_1",
+      pregunta: "¿Qué es la secuenciación?",
     opciones: [
       "El orden específico en el que se ejecutan las instrucciones de un algoritmo.",
       "La corrección automática de errores en el programa.",
@@ -29,16 +51,45 @@ const BANCO_DE_PREGUNTAS = [
     opciones: [
       "Variable",
       "Evento",
-      "Bucle"
-    ],
-    correcta: 2
-  }
-];
+      "Bucle"],
+      correcta: 1
+    }
+  ],
+  "Sesión 4": [
+    {
+      id: "s4_1",
+      pregunta: "¿Qué es React?",
+      opciones: ["Una base de datos", "Un lenguaje de programación", "Una librería de JavaScript para interfaces"],
+      correcta: 2
+    },
+    {
+      id: "s4_2",
+      pregunta: "¿Qué Hook de React usamos para manejar el estado?",
+      opciones: ["useState", "useEffect", "useContext"],
+      correcta: 0
+    }
+  ],
+  "Sesión 5": [
+    {
+      id: "s5_1",
+      pregunta: "¿Para qué sirve Firebase Firestore?",
+      opciones: ["Base de datos NoSQL en tiempo real", "Diseño gráfico", "Editor de texto"],
+      correcta: 0
+    },
+    {
+      id: "s5_2",
+      pregunta: "¿En qué plataforma desplegamos nuestra aplicación web?",
+      opciones: ["Vercel", "Photoshop", "Word"],
+      correcta: 0
+    }
+  ]
+};
 
 export default function Host() {
   const [players, setPlayers] = useState([]);
   const [preguntaAbierta, setPreguntaAbierta] = useState('');
   const [preguntaActualId, setPreguntaActualId] = useState(null);
+  const [sesionActiva, setSesionActiva] = useState('Sesión 2');
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'players'), (snapshot) => {
@@ -52,18 +103,16 @@ export default function Host() {
     return () => unsubscribe();
   }, []);
 
-  // 🔄 FUNCIÓN PARA REINICIAR EL JUEGO A CERO
+  // 🔄 REINICIAR EL JUEGO A CERO
   const reiniciarJuego = async () => {
-    const confirmar = window.confirm("¿Segura que deseas reiniciar todos los puntos y las respuestas a cero?");
+    const confirmar = window.confirm("¿Segura que deseas reiniciar todos los puntos y respuestas a cero?");
     if (!confirmar) return;
 
     try {
-      // 1. Regresar la fase del juego a 'espera'
       await setDoc(doc(db, 'game_state', 'actual'), {
         fase: 'espera'
       });
 
-      // 2. Reiniciar puntos y respuestas abiertas de cada alumna en Firestore
       const promesas = players.map(p => 
         updateDoc(doc(db, 'players', p.id), {
           puntuacion_total: 0,
@@ -75,11 +124,12 @@ export default function Host() {
       setPreguntaActualId(null);
       alert('¡El juego se ha reiniciado! Todos los puntos están en 0.');
     } catch (error) {
-      console.error('Error al reiniciar el juego:', error);
+      console.error('Error al reiniciar:', error);
       alert('Hubo un error al reiniciar.');
     }
   };
 
+  // LANZAR PREGUNTA ABIERTA
   const lanzarPreguntaAbierta = async () => {
     if (!preguntaAbierta.trim()) return;
     await setDoc(doc(db, 'game_state', 'actual'), {
@@ -89,6 +139,7 @@ export default function Host() {
     alert('¡Pregunta abierta enviada!');
   };
 
+  // LANZAR TRIVIA
   const lanzarPregunta = async (q) => {
     setPreguntaActualId(q.id);
 
@@ -101,6 +152,7 @@ export default function Host() {
     });
   };
 
+  // MOSTRAR PODIO
   const mostrarPodio = async () => {
     await setDoc(doc(db, 'game_state', 'actual'), {
       fase: 'resultados'
@@ -142,36 +194,58 @@ export default function Host() {
         ))}
       </div>
 
-      {/* FASE 2: BANCO DE PREGUNTAS PRECARGADAS */}
+      {/* FASE 2: SECCIONES Y PREGUNTAS POR SESIÓN */}
       <div style={styles.section}>
-        <h2>Fase 2: Banco de Preguntas Preparadas</h2>
-        <p style={{ color: '#666', fontSize: '0.9rem' }}>
-          Haz clic en <strong>"🚀 Lanzar Pregunta"</strong> en la pregunta que quieras activar en la pantalla de tus alumnas.
+        <h2>Fase 2: Banco de Preguntas</h2>
+        <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '1rem' }}>
+          Selecciona el número de sesión para ver las preguntas preparadas:
         </p>
 
-        {BANCO_DE_PREGUNTAS.map((q) => (
-          <div 
-            key={q.id} 
-            style={{
-              ...styles.questionItem,
-              borderColor: preguntaActualId === q.id ? '#9333ea' : '#ddd',
-              backgroundColor: preguntaActualId === q.id ? '#f3e8ff' : '#fff'
-            }}
-          >
-            <div>
-              <strong>Pregunta {q.id}: {q.pregunta}</strong>
-              <div style={{ fontSize: '0.85rem', color: '#555', marginTop: '0.25rem' }}>
-                Opciones: 1) {q.opciones[0]} | 2) {q.opciones[1]} | 3) {q.opciones[2]}
-              </div>
-            </div>
-            <button 
-              onClick={() => lanzarPregunta(q)}
-              style={{ ...styles.button, backgroundColor: '#9333ea', minWidth: '120px' }}
+        {/* PESTAÑAS DE SESIONES */}
+        <div style={styles.tabsContainer}>
+          {Object.keys(SESIONES).map((sesionNombre) => (
+            <button
+              key={sesionNombre}
+              onClick={() => setSesionActiva(sesionNombre)}
+              style={{
+                ...styles.tabBtn,
+                backgroundColor: sesionActiva === sesionNombre ? '#4a3d89' : '#e5e7eb',
+                color: sesionActiva === sesionNombre ? '#ffffff' : '#374151',
+                fontWeight: sesionActiva === sesionNombre ? 'bold' : 'normal'
+              }}
             >
-              {preguntaActualId === q.id ? '⚡ En curso' : '🚀 Lanzar'}
+              {sesionNombre}
             </button>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {/* PREGUNTAS DE LA SESIÓN SELECCIONADA */}
+        <div style={{ marginTop: '1rem' }}>
+          <h3>Preguntas de {sesionActiva}:</h3>
+          {SESIONES[sesionActiva].map((q) => (
+            <div 
+              key={q.id} 
+              style={{
+                ...styles.questionItem,
+                borderColor: preguntaActualId === q.id ? '#9333ea' : '#ddd',
+                backgroundColor: preguntaActualId === q.id ? '#f3e8ff' : '#fff'
+              }}
+            >
+              <div>
+                <strong>{q.pregunta}</strong>
+                <div style={{ fontSize: '0.85rem', color: '#555', marginTop: '0.25rem' }}>
+                  Opciones: 1) {q.opciones[0]} | 2) {q.opciones[1]} | 3) {q.opciones[2]}
+                </div>
+              </div>
+              <button 
+                onClick={() => lanzarPregunta(q)}
+                style={{ ...styles.button, backgroundColor: '#9333ea', minWidth: '120px' }}
+              >
+                {preguntaActualId === q.id ? '⚡ En curso' : '🚀 Lanzar'}
+              </button>
+            </div>
+          ))}
+        </div>
 
         <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
           <button onClick={mostrarPodio} style={{ ...styles.button, backgroundColor: '#16a34a', padding: '0.8rem 2rem' }}>
@@ -203,6 +277,8 @@ const styles = {
   input: { padding: '0.75rem', borderRadius: '4px', border: '1px solid #ccc', flex: 1 },
   button: { padding: '0.75rem 1.2rem', color: '#fff', backgroundColor: '#9333ea', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' },
   playerCard: { backgroundColor: '#fff', padding: '0.5rem', borderRadius: '4px', marginTop: '0.5rem', border: '1px solid #ddd' },
+  tabsContainer: { display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' },
+  tabBtn: { padding: '0.6rem 1.2rem', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.95rem' },
   questionItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderRadius: '6px', border: '2px solid #ddd', marginBottom: '0.75rem' },
   scoreRow: { display: 'flex', justifyContent: 'space-between', backgroundColor: '#fff', padding: '0.75rem', borderRadius: '4px', marginBottom: '0.5rem', border: '1px solid #e5e7eb' }
 };

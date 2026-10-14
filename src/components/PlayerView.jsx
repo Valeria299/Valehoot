@@ -67,13 +67,20 @@ export default function PlayerView({ user, onLogout }) {
 
   // Responder Opción de Trivia
   const responderTrivia = async (indexOpcion) => {
-    if (respondidoTrivia || timeLeft === 0) return;
+    // Si ya respondió o no hay tiempo, no hace nada
+    if (respondidoTrivia || timeLeft <= 0) return;
 
+    // Bloqueamos la respuesta inmediatamente para evitar clics múltiples
     setRespondidoTrivia(true);
+
     const esCorrecta = indexOpcion === gameState.correcta;
 
     if (esCorrecta) {
-      const puntos = timeLeft * 50 + 100;
+      // Nos aseguramos de que el tiempo no sea mayor a 20 segundos
+      const tiempoValido = Math.min(Math.max(timeLeft, 0), 20);
+      
+      // Puntos máximos posibles por pregunta: (20 * 50) + 100 = 1100 pts
+      const puntos = tiempoValido * 50 + 100; 
       setPuntosGanados(puntos);
 
       const me = players.find(p => p.username === user.username);

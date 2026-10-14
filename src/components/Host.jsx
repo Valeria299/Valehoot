@@ -5,31 +5,31 @@ import { collection, onSnapshot, doc, setDoc, updateDoc } from 'firebase/firesto
 const BANCO_DE_PREGUNTAS = [
   {
     id: 1,
-    pregunta: "¿Qué significa HTML?",
+    pregunta: "¿Qué es la secuenciación?",
     opciones: [
-      "HyperText Markup Language",
-      "High Tech Modern Language",
-      "Home Tool Management Line"
+      "El orden específico en el que se ejecutan las instrucciones de un algoritmo.",
+      "La corrección automática de errores en el programa.",
+      "La evaluación de una condición para tomar decisiones"
     ],
     correcta: 0
   },
   {
     id: 2,
-    pregunta: "¿Cuál de estos es un protocolo de red?",
+    pregunta: "¿Cuál es un tipo de bucle en Scratch?",
     opciones: [
-      "CSS",
-      "TCP/IP",
-      "Python"
+      "Enviar mensaje",
+      "Por siempre",
+      "Esperar"
     ],
     correcta: 1
   },
   {
     id: 3,
-    pregunta: "¿Qué comando en la terminal se usa para clonar un repositorio de GitHub?",
+    pregunta: "¿Qué permite repetir una instrucción varias veces?",
     opciones: [
-      "git push",
-      "git pull",
-      "git clone"
+      "Variable",
+      "Evento",
+      "Bucle"
     ],
     correcta: 2
   }
